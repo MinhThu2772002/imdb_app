@@ -1,7 +1,7 @@
 # Fast API framework
 from typing import Union
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # Dotenv
@@ -15,6 +15,22 @@ from routes import actors, movies
 
 app = FastAPI()
 
+# Define the origins that are allowed to make cross-origin requests
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8080",
+    # Add more origins as needed
+]
+
+# Add the CORS middleware to the FastAPI application
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Connect to database
 from db import database
