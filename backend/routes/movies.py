@@ -39,6 +39,8 @@ async def Scrape_movie():
             if average_rating is not None:
                 try:
                     average_rating = float(average_rating)
+                    if average_rating > 10: 
+                        raise ValueError
                 except ValueError:
                     average_rating = None
             movie = db.query(models.Movie).filter(models.Movie.movie_name == movie_name).first()
