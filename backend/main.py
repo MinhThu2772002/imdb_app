@@ -11,7 +11,7 @@ import os
 
 
 # API Routes
-from routes import users, update
+from routes import actors, movies
 
 app = FastAPI()
 
@@ -21,6 +21,7 @@ from db import database
 @app.on_event("startup")
 async def startup():
     await database.database.connect()
+    database.metadata.create_all(bind=database.engine)
     print("Database connected")
 @app.on_event("shutdown")
 async def shutdown():
@@ -28,7 +29,7 @@ async def shutdown():
 
 
 # Include routers
-app.include_router(users.UserRoute)
-app.include_router(update.update_router)
+app.include_router(actors.ActorsRoute)
+app.include_router(movies.MovieRoute)
 
     
