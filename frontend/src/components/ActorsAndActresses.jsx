@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const ActorsAndActresses = () => {
   const [actors, setActors] = useState([]);
@@ -7,8 +8,13 @@ const ActorsAndActresses = () => {
     // Fetch the list of actors and actresses from the backend API
     const fetchActors = async () => {
       try {
-        const response = await fetch("/api/actors"); // Replace with your backend API endpoint
-        const data = await response.json();
+        const response = await axios.get("http://127.0.0.1:8000/actors", {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+        const data = response.data;
+        console.log(data);
         setActors(data);
       } catch (error) {
         console.error("Error fetching actors: ", error);
