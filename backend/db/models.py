@@ -26,8 +26,8 @@ class Movie(Base):
 class ActorMovie(Base):
     __tablename__ = "ActorMovie"
 
-    actor_id = Column(Integer, ForeignKey('Actors.actor_id'), primary_key=True)
-    movie_id = Column(Integer, ForeignKey('Movie.movie_id'), primary_key=True)
+    actor_id = Column(UUID(as_uuid=True), ForeignKey('Actors.actor_id'), primary_key=True)
+    movie_id = Column(UUID(as_uuid=True), ForeignKey('Movie.movie_id'))
 
 class Award(Base):
     __tablename__ = "Award"
@@ -47,8 +47,8 @@ class Genre(Base):
 class MovieGenre(Base):
     __tablename__ = "MovieGenre"
 
-    movie_id = Column(Integer, ForeignKey('Movie.movie_id'), primary_key=True)
-    genre_id = Column(Integer, ForeignKey('Genre.genre_id'), primary_key=True)
+    movie_id = Column(UUID(as_uuid=True), ForeignKey('Movie.movie_id'), primary_key=True)
+    genre_id = Column(UUID(as_uuid=True), ForeignKey('Genre.genre_id'), primary_key=True)
 
     movie = relationship("Movie", backref="movie_genres")
     genre = relationship("Genre", backref="genre_movies")

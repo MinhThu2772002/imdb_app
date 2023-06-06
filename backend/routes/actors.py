@@ -13,7 +13,10 @@ async def Get_actors(name: str = None):
         results = db.query(models.Actors).filter(models.Actors.actor_name == name).all()
     else:
         results = db.query(models.Actors).all()
-    return results
+    if results:
+        return {"message": "Get actors information successfully", "data": results}
+    else:
+        return {"message": "No actors found"}
 
 @ActorsRoute.put("/actors")
 async def Scape_the_list_of_actors_and_details():
@@ -34,7 +37,7 @@ async def Scape_the_list_of_actors_and_details():
         actor = db.query(models.Actors).filter(models.Actors.actor_name == name).first()
         if actor:
             updated_data = {
-                'actor_name': name[:-1],
+                'actor_name': name[1:-1],
                 'biography': biography,
                 'birth_date': birth_date,
                 'birth_place': bind_place,
@@ -44,7 +47,7 @@ async def Scape_the_list_of_actors_and_details():
                 setattr(actor, key, value)  # Update the corresponding attributes with the new values
         else:
             actor = models.Actors(
-                actor_name = name[:-1],
+                actor_name = name[1:-1],
                 biography = biography,
                 birthdate = birth_date,
                 birthplace = bind_place,

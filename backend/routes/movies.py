@@ -7,25 +7,37 @@ from bs4 import BeautifulSoup
 import re
 MovieRoute = APIRouter()
 
-@MovieRoute.get("/movies")
-async def get_movies(id: str = None):
+@MovieRoute.get("/movies/")
+async def get_movies(actor_name: str = None):
     db = database.SessionLocal()
-    if id is None:
+    if actor_name is None:
         movies = db.query(models.Movie).all()
-        return movies
+        if movies:
+            return {"message": "Get movies successfully", "data": movies}
+        else: return {"message": "No movies found"}
     else: 
-        movie = db.query(models.Movie).filter(models.Movie.movie_id == id).first()
-        return movie
+        movies = (
+            db.query(models.Movie)
+            .join(models.ActorMovie)
+            .join(models.Actors)
+            .filter(models.Actors.actor_name == actor_name)
+            .all()
+        )
+        if movies:
+            return {"message": "Get movies successfully", "data": movies}
+
 @MovieRoute.put("/movies")
-async def Scrape_movie():
+async def Scrape_the_list_of_movie_based_on_actors_list():
     db = database.SessionLocal()
     actors = db.query(models.Actors).all()
-    actors_bio_url = []
+    actors_id_url = []
     for actor in actors:
         url = getattr(actor, "bio_url")
-        actors_bio_url.append(url)
-    for url in actors_bio_url:
-        actor_page = requests.get(url, 'hmtl-parser',headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0)'})
+        id = getattr(actor, "actor_id")
+        actors_id_url.append({'url': url, 'id': id})
+    i = 1
+    for actor in actors_id_url:
+        actor_page = requests.get(actor['url'], 'hmtl-parser',headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0)'})
         soup = BeautifulSoup(actor_page.text, 'html.parser').find_all('section', class_="ipc-page-section ipc-page-section--base")[6].find('ul').find_all('li')
         for film in soup:
             film = film.find('a')
@@ -47,12 +59,13 @@ async def Scrape_movie():
             if movie is None:
                 movie = models.Movie(movie_name=movie_name, release_year=release_year, average_rating=average_rating)
                 db.add(movie)
-  
+                db.commit()
+                movie_actor = models.ActorMovie(actor_id=actor['id'], movie_id=movie.movie_id)
+                db.add(movie_actor)
             else:
                 movie.release_year = release_year
                 movie.average_rating = average_rating
             db.commit()
             db.refresh(movie)
-
     return {"message": "Scrape Complete"} 
         
