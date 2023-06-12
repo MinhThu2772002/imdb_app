@@ -4,9 +4,9 @@ from db import models
 import requests
 import os
 from bs4 import BeautifulSoup
-ActorsRoute = APIRouter()
+route = APIRouter()
 
-@ActorsRoute.get("/actors")
+@route.get("/actors")
 async def Get_actors(name: str = None):
     db = database.SessionLocal()
     if name:
@@ -18,7 +18,7 @@ async def Get_actors(name: str = None):
     else:
         return {"message": "No actors found"}
 
-@ActorsRoute.put("/actors")
+@route.put("/actors")
 async def Scape_the_list_of_actors_and_details():
     db = database.SessionLocal()
     pages = requests.get(os.environ.get('actors_url'))
