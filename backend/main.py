@@ -11,7 +11,7 @@ import os
 
 
 # API Routes
-from routes import actors, movies
+from routes import actors, movies, awards
 
 app = FastAPI()
 
@@ -20,6 +20,7 @@ origins = [
     "http://localhost",
     "http://localhost:3000",
     "http://localhost:8080",
+    "https://rapidapi.com",
     # Add more origins as needed
 ]
 
@@ -33,11 +34,11 @@ app.add_middleware(
 )
 
 # Connect to database
-from db import database
+from db import database, models
 @app.on_event("startup")
 async def startup():
     await database.database.connect()
-    database.metadata.create_all(bind=database.engine)
+    models.Base.metadata.create_all(database.engine)
     print("Database connected")
 @app.on_event("shutdown")
 async def shutdown():
@@ -45,7 +46,8 @@ async def shutdown():
 
 
 # Include routers
-app.include_router(actors.ActorsRoute)
-app.include_router(movies.MovieRoute)
+app.include_router(actors.route)
+app.include_router(movies.route)
+app.include_router(awards.route)
 
     

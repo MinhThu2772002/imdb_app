@@ -5,9 +5,9 @@ import requests
 import os
 from bs4 import BeautifulSoup
 import re
-MovieRoute = APIRouter()
+route = APIRouter()
 
-@MovieRoute.get("/movies/")
+@route.get("/movies/")
 async def get_movies(actor_name: str = None):
     db = database.SessionLocal()
     if actor_name is None:
@@ -26,7 +26,7 @@ async def get_movies(actor_name: str = None):
         if movies:
             return {"message": "Get movies successfully", "data": movies}
 
-@MovieRoute.put("/movies")
+@route.put("/movies")
 async def Scrape_the_list_of_movie_based_on_actors_list():
     db = database.SessionLocal()
     actors = db.query(models.Actors).all()
