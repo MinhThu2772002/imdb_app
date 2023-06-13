@@ -1,12 +1,10 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from django.http.response import JsonResponse
 from rest_framework import status
 
-from .models import Actors
-from .serializers import ActorsSerializer
+from imdb_app.models import Actors
+from imdb_app.serializers import ActorsSerializer
 # Create your views here.
 
 
@@ -16,22 +14,29 @@ from bs4 import BeautifulSoup
 
 
 @api_view(['GET', 'PUT'])
-def actors(request, name=None):
+def actors(request):
+    name = request.GET.get('actor_name')
     if request.method == 'GET':
         if name is None:
             actors = Actors.objects.all()
-            serializer = ActorsSerializer(actors, many=True)
-            return JsonResponse(serializer.data, safe=False)
+            if actors:
+                serializer = ActorsSerializer(actors, many=True)
+                return JsonResponse(serializer.data, safe=False)
+            else:
+                return Response({'message': 'No actors found'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            actors = Actors.objects.filter(actor_name=name)
-            serializer = ActorsSerializer(actors, many=True)
-            return JsonResponse(serializer.data, safe=False)
+            try:
+                actors = Actors.objects.filter(actor_name=name)
+                serializer = ActorsSerializer(actors, many=True)
+                return JsonResponse(serializer.data, safe=False)
+            except Actors.DoesNotExist:
+                return Response({'message': 'Actor not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
         pages = requests.get(os.environ.get('actors_url'))
         soup = BeautifulSoup(pages.text, 'html.parser')
         list_of_actors = soup.find_all('div', class_="lister-item mode-detail")
         for actor in list_of_actors:
-            name = actor.find('h3', class_= "lister-item-header").find('a').text
+            name = actor.find('h3', class_= "lister-item-header").find('a').text[1:-1]
             biography = actor.find('div', class_="lister-item-image").find('img').get('src')
             birth_info = actor.find('h3', class_= "lister-item-header").find('a').get('href')[6:]
             link = f"https://www.imdb.com/name/{birth_info}/bio/?ref_=nm_ov_bio_sm".format(birth_info=birth_info)

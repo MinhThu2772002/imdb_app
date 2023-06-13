@@ -17,7 +17,7 @@ class Movie(models.Model):
     movie_id = models.AutoField(primary_key=True)
     movie_name = models.CharField(max_length=255)
     release_year = models.CharField(max_length=255)
-    average_rating = models.CharField(max_length=255)
+    average_rating = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.movie_name
